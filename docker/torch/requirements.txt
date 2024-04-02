@@ -1,0 +1,11 @@
+git+https://github.com/STomoya/storch@v0.5.10
+ninja
+datasets[vision]
+timm
+gudhi
+open_clip_torch
+typer
+
+## optional
+# xformers
+# --extra-index-url https://download.pytorch.org/whl/cu118

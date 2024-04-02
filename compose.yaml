@@ -1,0 +1,38 @@
+services:
+  torch:
+    build:
+      context: .
+      dockerfile: ./docker/torch/Dockerfile
+      args:
+        - BASE_TORCH_VERSION=2.2.0
+        - BASE_CUDA_VERSION=11.8
+        - BASE_CUDNN_VERSION=8
+        - UID=${UID}
+        - USERNAME=torchuser
+
+    volumes:
+      - type: bind
+        source: .
+        target: ${WORKING_DIR}
+      - type: bind
+        source: /mnt/E/Data/afhq/train/
+        target: ${WORKING_DIR}/data/afhq
+
+    shm_size: '8gb'
+    init: true
+    working_dir: ${WORKING_DIR}
+    environment:
+      - CUDA_HOME=${CUDA_HOME}
+      - XDG_CACHE_HOME=${WORKING_DIR}/${XDG_CACHE_HOME}
+      - TORCH_EXTENSIONS_DIR=${WORKING_DIR}/${XDG_CACHE_HOME}/${TORCH_EXTENSIONS_DIR}
+    entrypoint: []
+    command: ["/bin/bash", "./command.sh"]
+    user: ${UID:-1000}
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: ['0,1']

@@ -10,7 +10,7 @@ from torchvision.models import resnet50
 from ptfid.feature.utils import load_state_dict_from_url
 
 
-def get_resnet50_swav_model() -> tuple[nn.Module, tuple[int, int, int]]:
+def get_resnet50_swav_model() -> tuple[nn.Module, tuple[int, int]]:
     """Get ResNet model with weights trained using SwAV."""
     state_dict = load_state_dict_from_url('https://dl.fbaipublicfiles.com/deepcluster/swav_800ep_pretrain.pth.tar')
     model = resnet50()

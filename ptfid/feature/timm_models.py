@@ -1,9 +1,12 @@
 """timm."""
 
+from __future__ import annotations
+
 import timm
+import torch.nn as nn
 
 
-def get_timm_model(model_name: str):
+def get_timm_model(model_name: str) -> tuple[nn.Module, tuple[int, int]]:
     """Fet timm model and setup for feature extraction."""
     try:
         model = timm.create_model(model_name=model_name, pretrained=True)

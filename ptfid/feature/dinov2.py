@@ -11,7 +11,7 @@ import torch.nn as nn
 
 def _get_dinov2_model(
     arch: Literal['vits14', 'vitb14', 'vitl14', 'vitg14'] = 'vitl14',
-) -> tuple[nn.Module, tuple[int, int, int]]:
+) -> tuple[nn.Module, tuple[int, int]]:
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         model = torch.hub.load('facebookresearch/dinov2', f'dinov2_{arch}')

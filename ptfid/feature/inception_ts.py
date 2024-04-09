@@ -59,5 +59,5 @@ class InceptionV3W(nn.Module):
             return features
 
 
-def get_inceptionv3_model() -> tuple[nn.Module, tuple[int, int, int]]:
+def get_inceptionv3_model() -> tuple[nn.Module, tuple[int, int]]:
     return InceptionV3W(), (299, 299)

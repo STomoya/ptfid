@@ -34,8 +34,8 @@ class Resizers(str, Enum):
 class Normalizers(str, Enum):
     """Normalizer enum."""
 
-    torch = 'torch'
-    clip = 'clip'
+    imagenet = 'imagenet'
+    openai = 'openai'
     inception = 'inception'
     custom = 'custom'
 
@@ -54,7 +54,7 @@ def main(
     # Metric flags.
     fid: Annotated[bool, typer.Option(help='Flag for FID.')] = True,
     kid: Annotated[bool, typer.Option(help='Flag for KID.')] = False,
-    pr: Annotated[bool, typer.Option(help='Flag for P&R.')] = True,
+    pr: Annotated[bool, typer.Option(help='Flag for P&R.')] = False,
     dc: Annotated[bool, typer.Option(help='Flag for D&C.')] = False,
     pppr: Annotated[bool, typer.Option(help='Flag for PP&PR.')] = False,
     toppr: Annotated[bool, typer.Option(help='Flag for TopP&R.')] = False,

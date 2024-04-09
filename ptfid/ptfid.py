@@ -70,7 +70,7 @@ def calculate_metrics_from_folders(
     seed: int = 0,
     # Dataset parameters.
     resizer: Literal['clean', 'torch', 'tensorflow', 'pillow'] = 'tensorflow',
-    normalizer: Literal['torch', 'clip', 'inception', 'custom'] = 'inception',
+    normalizer: Literal['imagenet', 'openai', 'inception', 'custom'] = 'inception',
     batch_size: int = 32,
     mean: tuple[float, ...] | None = None,
     std: tuple[float, ...] | None = None,
@@ -118,10 +118,10 @@ def calculate_metrics_from_folders(
             - 'pillow': Resize image using `Image.Image.resize()`.
             Default: 'tensorflow'.
 
-        normalizer (Literal['torch', 'clip', 'inception', 'custom'], optional): Normalization method name.
+        normalizer (Literal['imagenet', 'openai', 'inception', 'custom'], optional): Normalization method name.
             - 'inception': (x - 0.5) / 0.5. Scale [0, 1] to [-1, 1].
-            - 'torch': Normalize data using ImageNet mean std.
-            - 'clip': Normalize data using mean std used to train CLIP models.
+            - 'imagenet': Normalize data using ImageNet mean std.
+            - 'openai': Normalize data using mean std used to train CLIP models.
             - 'custom': Use custom mean std.
             Default: 'inception'.
 

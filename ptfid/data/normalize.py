@@ -30,12 +30,12 @@ def get_normalize(
     if isinstance(std, float):
         std = [std]
 
-    if lib == 'torch':
+    if lib == 'imagenet':
 
         def normalize(tensor):
             return _normalize_fn(tensor, TORCH_IMAGENET_MEAN, TORCH_IMAGENET_STD)
 
-    elif lib == 'clip':
+    elif lib == 'openai':
 
         def normalize(tensor):
             return _normalize_fn(tensor, CLIP_IMAGENET_MEAN, CLIP_IMAGENET_STD)

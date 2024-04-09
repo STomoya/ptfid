@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
+from ptfid import utils
 from ptfid.core import compute_metrics_from_features
 from ptfid.data.dataset import create_dataset
 from ptfid.feature import get_feature_extractor
@@ -77,6 +78,8 @@ def calculate_metrics_from_folders(
     device: Literal['cpu', 'cuda'] = 'cuda',
     cache_features: bool = True,
     dataset1_is_real: bool = True,
+    # Other arguments.
+    result_file: str | None = None,
 ) -> dict[str, float]:
     """Compute metrics between two folders.
 
@@ -129,6 +132,7 @@ def calculate_metrics_from_folders(
         cache_features (bool, optional): Cache real features to skip feature extraction on later calls. Useful when
             computing scores on different generated image sets. Default: True.
         dataset1_is_real (bool, optional): Switch real dataset argument. Default: True.
+        result_file (str, optional): JSON file to save results.
 
     Returns:
     -------
@@ -206,5 +210,10 @@ def calculate_metrics_from_folders(
         feat1_is_real=True,
         seed=seed,
     )
+
+    # Keeping this functionality out from `compute_metrics_from_features()`, which should focus only on metric
+    # computation.
+    if result_file is not None:
+        utils.save_json(obj=results, filename=result_file, avoid_overwrite=True)
 
     return results

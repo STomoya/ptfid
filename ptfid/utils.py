@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import glob
+import json
+import os
+import shutil
 from contextlib import contextmanager
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -24,6 +28,32 @@ def local_seed(seed: int, enabled: bool = True):
     yield
     if enabled:
         np.random.set_state(random_state)
+
+
+def save_json(obj: dict[str, Any], filename: str, avoid_overwrite: bool = True) -> None:
+    """Save obj to JSON file.
+
+    Args:
+    ----
+        obj (dict[str, Any]): object to save.
+        filename (str): Pathlike string.
+        avoid_overwrite (bool, optional): Avoid overwriting file by renaming the file.
+
+    """
+    if '/' in filename:
+        folder = '/'.join(filename.split('/')[:-1])
+        # skip './<filename>.json' pattern.
+        if folder != '.':
+            os.makedirs(folder, exist_ok=True)
+
+    if avoid_overwrite and os.path.exists(filename):
+        # rename old file to avoid overwriting the file.
+        paths = glob.glob(filename + '.*')
+        index = len(paths)
+        shutil.move(filename, filename + f'.{index:02d}')
+
+    with open(filename, 'w') as fp:
+        json.dump(obj, fp, indent=2)
 
 
 class FeatureCache:

@@ -5,10 +5,6 @@ https://github.com/LAIT-CVLab/TopPR/blob/bf7655136d1fc7aab231a0516f4bf7945656ff0
 
 from __future__ import annotations
 
-import os
-import random
-from contextlib import contextmanager
-
 import gudhi
 import numpy as np
 import torch
@@ -16,44 +12,7 @@ from scipy.spatial import distance
 from sklearn.metrics.pairwise import euclidean_distances
 from tqdm import tqdm
 
-
-@contextmanager
-def fix_seed(seed: int = 0):
-    """Locally fix seeds."""
-    random_state = random.getstate()
-    np_state = np.random.get_state()
-    hash_seed = os.environ.get('PYTHONHASHSEED')
-    torch_state = torch.get_rng_state()
-    torch_cuda_state = torch.cuda.get_rng_state()
-    torch_cuda_all_state = torch.cuda.get_rng_state_all()
-    cudnn_det_original = torch.backends.cudnn.deterministic
-    cudnn_ben_original = torch.backends.cudnn.benchmark
-
-    random.seed(seed)
-    np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
-    yield
-
-    random.setstate(random_state)
-    np.random.set_state(np_state)
-    if hash_seed is None:
-        os.environ.pop('PYTHONHASHSEED')
-    else:
-        os.environ['PYTHONHASHSEED'] = hash_seed
-    torch.set_rng_state(torch_state)
-    torch.cuda.set_rng_state(torch_cuda_state)
-    torch.cuda.set_rng_state_all(torch_cuda_all_state)
-    torch.backends.cudnn.deterministic = cudnn_det_original
-    torch.backends.cudnn.benchmark = cudnn_ben_original
-
-
-SEED = 0
+from ptfid.utils import local_seed
 
 
 ###########################################
@@ -276,7 +235,7 @@ def calculate_toppr(
     """
     real_features, fake_features = (features1, features2) if feat1_is_real else (features2, features1)
 
-    with fix_seed(seed):
+    with local_seed(seed):
         # match data format for random projection
         if not torch.is_tensor(real_features):
             real_features = torch.tensor(real_features, dtype=torch.float32)

@@ -52,4 +52,4 @@ def calculate_frechet_distance(
     elif method == 'gpu':
         score = fid_gpu.calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps)
 
-    return {'fid': score}
+    return {'fid': float(score)}

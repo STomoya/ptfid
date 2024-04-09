@@ -92,6 +92,6 @@ def calculate_kid(
             mmds[i] = o
 
     if times == 1:
-        return {'kid.mean': mmds.mean(), 'kid.std': mmds.std()}
+        return {'kid.mean': float(mmds.mean()), 'kid.std': float(mmds.std())}
     else:
-        return {f'kid.mean.x{int(times):d}': mmds.mean() * times, f'kid.std.x{int(times):d}': mmds.std()}
+        return {f'kid.mean.x{int(times):d}': float(mmds.mean() * times), f'kid.std.x{int(times):d}': float(mmds.std())}

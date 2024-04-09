@@ -148,7 +148,7 @@ def calculate_pr(
         dict[str, float]: score.
 
     """
-    if not pr and not dc:
+    if not any((pr, dc, pppr)):
         return {}
 
     real_features, fake_features = (features1, features2) if feat1_is_real else (features2, features1)
@@ -165,17 +165,17 @@ def calculate_pr(
     if pr:
         p = precision(real_nn_distances, distances_real_fake)
         r = recall(fake_nn_distances, distances_real_fake)
-        results.update({'precision': p, 'recall': r})
+        results.update({'precision': float(p), 'recall': float(r)})
     if dc:
         d = density(real_nn_distances, distances_real_fake, nearest_k)
         c = coverage(real_nn_distances, distances_real_fake)
-        results.update({'density': d, 'coverage': c})
+        results.update({'density': float(d), 'coverage': float(c)})
     if pppr:
         PSR_real, PSR_fake = get_PSR_XY(
             real_nn_distances, fake_nn_distances, distances_real_fake, distances_fake_real, alpha=pppr_alpha
         )
         pp = p_precision(PSR_real)
         pr_ = p_recall(PSR_fake)
-        results.update({'p_precision': pp, 'p_recall': pr_})
+        results.update({'p_precision': float(pp), 'p_recall': float(pr_)})
 
     return results

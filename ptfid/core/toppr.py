@@ -310,6 +310,6 @@ def calculate_toppr(
             F1_score = 2 / ((1 / t_precision) + (1 / t_recall))
         else:
             F1_score = 0
-        return dict(top_precision=t_precision, top_recall=t_recall, top_f1=F1_score)
+        return dict(top_precision=float(t_precision), top_recall=float(t_recall), top_f1=float(F1_score))
     else:
-        return dict(top_precision=t_precision, top_recall=t_recall)
+        return dict(top_precision=float(t_precision), top_recall=float(t_recall))

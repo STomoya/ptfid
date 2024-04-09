@@ -10,6 +10,7 @@ from typing import Optional
 import typer
 from typing_extensions import Annotated
 
+from ptfid.data.resize import set_interpolation
 from ptfid.logger import get_logger
 from ptfid.ptfid import calculate_metrics_from_folders
 
@@ -29,6 +30,13 @@ class Resizers(str, Enum):
     torch = 'torch'
     tensorflow = 'tensorflow'
     pillow = 'pillow'
+
+
+class Interpolations(str, Enum):
+    """Interpolation methods."""
+
+    bilinear = 'bilinear'
+    bicubic = 'bicubic'
 
 
 class Normalizers(str, Enum):
@@ -76,6 +84,7 @@ def main(
     seed: Annotated[int, typer.Option(help='Random state seed.')] = 0,
     # Dataset parameters.
     resizer: Annotated[Resizers, typer.Option(help='Resize method.')] = 'tensorflow',
+    interpolation: Annotated[Interpolations, typer.Option(help='Interpolation mode.')] = 'bicubic',
     normalizer: Annotated[Normalizers, typer.Option(help='Normalize method.')] = 'inception',
     batch_size: Annotated[int, typer.Option(help='Batch size.')] = 32,
     mean: Annotated[tuple[float, float, float], typer.Option(help='Mean for custom normalizer.')] = (None, None, None),
@@ -94,6 +103,8 @@ def main(
     local_vars = locals()
     local_vars.pop('logger')
     logger.debug('Arguments:\n' + pprint.pformat(local_vars, sort_dicts=False))
+
+    set_interpolation(mode=interpolation)
 
     results = calculate_metrics_from_folders(
         dataset_dir1=dataset_dir1,

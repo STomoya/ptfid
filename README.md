@@ -26,13 +26,6 @@
 
     In addition to Inception v3, `ptfid` supports ResNet50-SwAV, DINOv2, CLIP models, and also models from `timm` and `open_clip` using the `timm:` and `clip:` prefix. See the examples for details.
 
-    > [!IMPORTANT]
-    > It is recommended to specify the `--normalizer` option too, which defaults to Inception normalization. `--normalizer imagenet` uses the ImageNet mean and std, `--normalizer openai` uses the mean and std used to train the OpenAI CLIP models, and `--normalizer custom --mean 0.5 0.5 0.5 --std 0.5 0.5 0.5` sets the mean and std to the values provided by the user.
-
-    > [!IMPORTANT]
-    > It is also recommended to specify the `--resizer` option, which defaults to the pytorch implementation of the tensorflow v1 bilinear interpolation. `--resizer torch` uses torch interpolation function, `--resizer pillow` uses pillow's resize function, and `--resizer clean` uses the clean-resize method proposed in the CleanFID paper. Only use `--resizer inception` when `--feature-extractor inceptionv3`, otherwise `clean` is recommended.
-    > You can also change the interpolation mode using the `--interpolation` option. The default is set to `bicubic`. Only `bicubic` and `bilinear` is supported, and this option does not affect `--resizer inception` which only has a bilinear implementation.
-
     <details>
     <summary>Some examples</summary>
 
@@ -81,6 +74,14 @@
             --resizer clean
         ```
     </details>
+
+> [!IMPORTANT]
+> It is recommended to specify the `--normalizer` option too, which defaults to Inception normalization. `--normalizer imagenet` uses the ImageNet mean and std, `--normalizer openai` uses the mean and std used to train the OpenAI CLIP models, and `--normalizer custom --mean 0.5 0.5 0.5 --std 0.5 0.5 0.5` sets the mean and std to the values provided by the user.
+
+> [!IMPORTANT]
+> It is also recommended to specify the `--resizer` option, which defaults to the pytorch implementation of the tensorflow v1 bilinear interpolation. `--resizer torch` uses torch interpolation function, `--resizer pillow` uses pillow's resize function, and `--resizer clean` uses the clean-resize method proposed in the CleanFID paper. Only use `--resizer inception` when `--feature-extractor inceptionv3`, otherwise `clean` is recommended.
+> You can also change the interpolation mode using the `--interpolation` option. The default is set to `bicubic`. Only `bicubic` and `bilinear` is supported, and this option does not affect `--resizer inception` which only has a bilinear implementation.
+
 
 - Log process to a file.
 

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import numpy as np
 from sklearn.metrics.pairwise import polynomial_kernel
-from tqdm import trange
 
 from ptfid.utils import local_seed
 
@@ -86,7 +85,7 @@ def calculate_kid(
     mmds = np.zeros(num_subsets)
 
     with local_seed(seed):
-        for i in trange(num_subsets):
+        for i in num_subsets:
             feat1_ = features1[np.random.choice(len(features1), subset_size, replace=False)]
             feat2_ = features2[np.random.choice(len(features2), subset_size, replace=False)]
             o = compute_polynomial_mmd(feat1_, feat2_, degree=degree, gamma=gamma, coef0=coef0)

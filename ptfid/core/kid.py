@@ -10,7 +10,7 @@ from __future__ import annotations
 import numpy as np
 from sklearn.metrics.pairwise import polynomial_kernel
 
-from ptfid.utils import local_seed
+from ptfid.utils import local_seed_numpy
 
 
 def mmd2(K_XX, K_XY, K_YY):
@@ -84,7 +84,7 @@ def calculate_kid(
     subset_size = min((features1.shape[0], features2.shape[0], subset_size))
     mmds = np.zeros(num_subsets)
 
-    with local_seed(seed):
+    with local_seed_numpy(seed):
         for i in num_subsets:
             feat1_ = features1[np.random.choice(len(features1), subset_size, replace=False)]
             feat2_ = features2[np.random.choice(len(features2), subset_size, replace=False)]

@@ -13,7 +13,7 @@ import numpy as np
 
 
 @contextmanager
-def local_seed(seed: int, enabled: bool = True):
+def local_seed_numpy(seed: int, enabled: bool = True):
     """Locally set the seed of numpy.
 
     Args:

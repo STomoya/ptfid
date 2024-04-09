@@ -15,7 +15,7 @@ from ptfid.utils import InMemoryFeatureCache
 
 
 @torch.no_grad()
-def get_features(dataset, model: torch.nn.Module, device: torch.device, progress: bool = False) -> np.ndarray:
+def get_features(dataset, model: torch.nn.Module, device: torch.device, progress: bool = True) -> np.ndarray:
     """Extractor features from all images inside the dataset.
 
     Args:
@@ -31,8 +31,8 @@ def get_features(dataset, model: torch.nn.Module, device: torch.device, progress
 
     """
     features = []
-    for image in tqdm(dataset, disable=not progress, bar_format='{l_bar}{bar:15}{r_bar}'):
-        image = image.to(device)  # noqa: PLW2901
+    for batch in tqdm(dataset, disable=not progress, bar_format='{l_bar}{bar:15}{r_bar}'):
+        image = batch['image'].to(device)
         output = model(image)
         features.append(output.cpu().numpy())
     features = np.concatenate(features)
@@ -139,7 +139,7 @@ def calculate_metrics_from_folders(
         (dataset_dir1, dataset_dir2) if dataset1_is_real else (dataset_dir2, dataset_dir1)
     )
 
-    model, image_size = get_feature_extractor(feature_extractor)
+    model, image_size = get_feature_extractor(feature_extractor, device=device)
 
     real_features = None
     # load from cache.

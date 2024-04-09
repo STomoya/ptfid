@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Callable
 
+import torch
 import torch.nn as nn
 
 from ptfid.feature.clip import (
@@ -77,7 +78,7 @@ def _split_name(name: str) -> tuple[str, str, str]:
     return source, model, variant
 
 
-def get_feature_extractor(name: str) -> nn.Module:
+def get_feature_extractor(name: str, device: torch.device) -> tuple[nn.Module, tuple[int, int]]:
     """Create feature extractor model.
 
     The format of the name is:
@@ -91,6 +92,7 @@ def get_feature_extractor(name: str) -> nn.Module:
     Args:
     ----
         name (str): name of the feature extractor.
+        device (torch.device): Device.
 
     Returns:
     -------
@@ -100,10 +102,13 @@ def get_feature_extractor(name: str) -> nn.Module:
     source, model, variant = _split_name(name)
 
     if source == 'ptfid':
-        return PTFID_MODEL_VARIANT[model][variant]()
+        extractor, input_size = PTFID_MODEL_VARIANT[model][variant]()
 
     if source == 'clip':
-        return get_clip_arch_model(model, variant)
+        extractor, input_size = get_clip_arch_model(model, variant)
 
     if source == 'timm':
-        return get_timm_model('.'.join([model, variant]) if variant != 'default' else model)
+        extractor, input_size = get_timm_model('.'.join([model, variant]) if variant != 'default' else model)
+
+    extractor.to(device)
+    return extractor, input_size

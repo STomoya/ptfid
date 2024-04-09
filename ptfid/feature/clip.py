@@ -9,7 +9,7 @@ def get_clip_arch_model(arch: str, weights: str):
     size = model.image_size
     model.output_tokens = False
 
-    return model, (3, *size)
+    return model, size
 
 
 def get_clip_b32_model(weights: str = 'laion2b_s34b_b79k'):

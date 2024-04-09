@@ -23,4 +23,4 @@ def get_resnet50_swav_model() -> tuple[nn.Module, tuple[int, int, int]]:
             new_state_dict[name] = value
 
     model.load_state_dict(new_state_dict)
-    return model, (3, 224, 224)
+    return model, (224, 224)

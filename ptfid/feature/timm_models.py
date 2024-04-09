@@ -18,5 +18,6 @@ def get_timm_model(model_name: str):
     size = model.pretrained_cfg.get('input_size')
     if size is None:
         raise Exception(f'pretrained_cfg does not contain "input_size" key. {model.pretrained_cfg}')
+    size = size[1:]
 
     return model, size

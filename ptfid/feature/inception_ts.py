@@ -60,4 +60,4 @@ class InceptionV3W(nn.Module):
 
 
 def get_inceptionv3_model() -> tuple[nn.Module, tuple[int, int, int]]:
-    return InceptionV3W(), (3, 299, 299)
+    return InceptionV3W(), (299, 299)

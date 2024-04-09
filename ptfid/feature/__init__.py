@@ -25,6 +25,7 @@ from ptfid.feature.dinov2 import (
 from ptfid.feature.inception_ts import get_inceptionv3_model
 from ptfid.feature.resnet50 import get_resnet50_swav_model
 from ptfid.feature.timm_models import get_timm_model
+from ptfid.logger import get_logger
 
 PTFID_MODEL_VARIANT: dict[str, dict[str, Callable[[], nn.Module]]] = {
     'dinov2': {
@@ -99,6 +100,9 @@ def get_feature_extractor(name: str, device: torch.device) -> tuple[nn.Module, t
         nn.Module: Feature extractor.
 
     """
+    logger = get_logger()
+    logger.info(f'Input feature extractor name: "{name}"')
+
     source, model, variant = _split_name(name)
 
     if source == 'ptfid':
@@ -111,4 +115,9 @@ def get_feature_extractor(name: str, device: torch.device) -> tuple[nn.Module, t
         extractor, input_size = get_timm_model('.'.join([model, variant]) if variant != 'default' else model)
 
     extractor.to(device)
+
+    logger.info(f'Feature extractor class: "{extractor.__class__.__qualname__}"')
+    logger.debug(f'Input image size: {input_size}')
+    logger.debug(f'Architecture:\n{extractor}')
+
     return extractor, input_size

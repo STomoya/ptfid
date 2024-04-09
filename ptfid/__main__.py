@@ -3,13 +3,14 @@
 # ruff: noqa: D103
 from __future__ import annotations
 
-from enum import Enum
 import pprint
+from enum import Enum
 from typing import Optional
 
 import typer
 from typing_extensions import Annotated
 
+from ptfid.logger import get_logger
 from ptfid.ptfid import calculate_metrics_from_folders
 
 
@@ -83,8 +84,17 @@ def main(
     # Feature extraction arguments.
     device: Annotated[Devices, typer.Option(help='Device.')] = 'cuda',
     dataset1_is_real: Annotated[bool, typer.Option(help='Switch real dataset.')] = True,
+    # other arguments.
+    log_file: Annotated[Optional[str], typer.Option(help='File to output logs.')] = None,
+    result_file: Annotated[str, typer.Option(help='JSON file to save results to.')] = 'results.json',
 ):
     """Calculate generative metrics given two image folders."""
+    logger = get_logger(filename=log_file)
+
+    local_vars = locals()
+    local_vars.pop('logger')
+    logger.debug('Arguments:\n' + pprint.pformat(local_vars, sort_dicts=False))
+
     results = calculate_metrics_from_folders(
         dataset_dir1=dataset_dir1,
         dataset_dir2=dataset_dir2,
@@ -119,9 +129,11 @@ def main(
         device=device,
         cache_features=False,  # We don't need to cache features when exc as cmd.
         dataset1_is_real=dataset1_is_real,
+        result_file=result_file,
     )
 
-    pprint.pprint(results)
+    results_str = pprint.pformat(results)
+    logger.info(f'All results:\n{results_str}')
 
 
 if __name__ == '__main__':

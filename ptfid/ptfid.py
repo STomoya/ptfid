@@ -12,6 +12,7 @@ from ptfid import utils
 from ptfid.core import compute_metrics_from_features
 from ptfid.data.dataset import create_dataset
 from ptfid.feature import get_feature_extractor
+from ptfid.logger import Timer, get_logger
 from ptfid.utils import InMemoryFeatureCache
 
 
@@ -139,17 +140,32 @@ def calculate_metrics_from_folders(
         dict[str, float]: Scores.
 
     """
+    logger = get_logger()
+    timer = Timer()
+
     real_dataset_dir, fake_dataset_dir = (
         (dataset_dir1, dataset_dir2) if dataset1_is_real else (dataset_dir2, dataset_dir1)
     )
 
     model, image_size = get_feature_extractor(feature_extractor, device=device)
 
+    logger.info('Extract features from real dataset...')
+    timer.start()
+
     real_features = None
     # load from cache.
     # We only cache real features.
     if cache_features:
+        logger.debug('  Looking for cached features for real dataset...')
+
         real_features = InMemoryFeatureCache.get(real_dataset_dir, feature_extractor)
+
+        if real_features is None:
+            logger.debug(
+                '    Failed. Falling back to extracting features. This msg is expected if this is the first call.'
+            )
+        else:
+            logger.debug('    Success. Skipping feature extraction on real dataset.')
 
     if real_features is None:
         # extract features from real dataset
@@ -168,7 +184,13 @@ def calculate_metrics_from_folders(
         real_features = get_features(dataset=real_dataset, model=model, device=device)
 
         if cache_features:
+            logger.debug('  Caching real features.')
             InMemoryFeatureCache.set(real_dataset_dir, feature_extractor, real_features)
+
+    duration = timer.done()
+    logger.info(f'Done. Duration: {duration}, Feature shape: {real_features.shape}')
+    logger.info('Extract features from fake dataset...')
+    timer.start()
 
     fake_dataset = create_dataset(
         image_folder=fake_dataset_dir,
@@ -183,6 +205,11 @@ def calculate_metrics_from_folders(
     )
 
     fake_features = get_features(dataset=fake_dataset, model=model, device=device)
+
+    duration = timer.done()
+    logger.info(f'Done. Duration: {duration}, Feature shape: {fake_features.shape}')
+    logger.info('Compute metrics...')
+    timer.start()
 
     results = compute_metrics_from_features(
         features1=real_features,
@@ -210,6 +237,9 @@ def calculate_metrics_from_folders(
         feat1_is_real=True,
         seed=seed,
     )
+
+    duration = timer.done()
+    logger.info(f'Done. Duration: {duration}')
 
     # Keeping this functionality out from `compute_metrics_from_features()`, which should focus only on metric
     # computation.

@@ -8,6 +8,7 @@ from ptfid.core.fid import calculate_frechet_distance
 from ptfid.core.kid import calculate_kid
 from ptfid.core.pr import calculate_pr
 from ptfid.core.toppr import calculate_toppr
+from ptfid.logger import Timer, get_logger
 
 
 def compute_metrics_from_features(
@@ -74,18 +75,31 @@ def compute_metrics_from_features(
         dict[str, float]: calculated scores.
 
     """
+    logger = get_logger()
+    timer = Timer()
+
     results = {}
 
     if fid:
+        logger.info('FID...')
+        timer.start()
+
         _fid = calculate_frechet_distance(
             features1=features1,
             features2=features2,
             eps=eps,
             method=fid_compute_method,
         )
+
+        duration = timer.done()
+        logger.info(f'  result: {_fid}')
+        logger.debug(f'  duration: {duration}')
         results.update(_fid)
 
     if kid:
+        logger.info('KID...')
+        timer.start()
+
         _kid = calculate_kid(
             features1=features1,
             features2=features2,
@@ -97,9 +111,16 @@ def compute_metrics_from_features(
             times=kid_times,
             seed=seed,
         )
+
+        duration = timer.done()
+        logger.info(f'  result: {_kid}')
+        logger.debug(f'  duration: {duration}')
         results.update(_kid)
 
     if any((pr, dc, pppr)):
+        logger.info('P&R, D&C, PP&PR...')
+        timer.start()
+
         _pr = calculate_pr(
             features1=features1,
             features2=features2,
@@ -110,9 +131,16 @@ def compute_metrics_from_features(
             dc=dc,
             pppr=pppr,
         )
+
+        duration = timer.done()
+        logger.info(f'  results: {_pr}')
+        logger.debug(f'  duration: {duration}')
         results.update(_pr)
 
     if toppr:
+        logger.info('TopP&R...')
+        timer.start()
+
         _toppr = calculate_toppr(
             features1=features1,
             features2=features2,
@@ -123,6 +151,10 @@ def compute_metrics_from_features(
             feat1_is_real=feat1_is_real,
             seed=seed,
         )
+
+        duration = timer.done()
+        logger.info(f'  results: {_toppr}')
+        logger.debug(f'  duration: {duration}')
         results.update(_toppr)
 
     return results

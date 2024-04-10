@@ -14,8 +14,11 @@ TORCH_IMAGENET_STD = [0.229, 0.224, 0.225]
 CLIP_IMAGENET_MEAN = [0.48145466, 0.4578275, 0.40821073]
 CLIP_IMAGENET_STD = [0.26862954, 0.26130258, 0.27577711]
 
-TF_INCEPTION_MEAN = [0.5]
-TF_INCEPTION_STD = [0.5]
+# NOTE: Original implementation uses (x - 128) / 128, where x is uint8.
+#       Here, we scale the image in float32 [0,1] for simplicity, which will NOT result in bit exact results,
+#       but should be fine enough.
+TF_INCEPTION_MEAN = [128.0 / 255.0]
+TF_INCEPTION_STD = [128.0 / 255.0]
 
 
 def get_normalize(

@@ -48,7 +48,7 @@ def calculate_metrics_from_folders(
     # Metric flags.
     fid: bool = True,
     kid: bool = False,
-    pr: bool = True,
+    pr: bool = False,
     dc: bool = False,
     pppr: bool = False,
     toppr: bool = False,

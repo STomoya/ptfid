@@ -16,7 +16,7 @@ def compute_metrics_from_features(
     features2: np.ndarray,
     fid: bool = True,
     kid: bool = False,
-    pr: bool = True,
+    pr: bool = False,
     dc: bool = False,
     pppr: bool = False,
     toppr: bool = False,

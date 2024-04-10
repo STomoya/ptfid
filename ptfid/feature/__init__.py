@@ -6,6 +6,7 @@ from typing import Callable
 
 import torch
 import torch.nn as nn
+from numpy import extract
 
 from ptfid.feature.clip import (
     get_clip_arch_model,
@@ -115,6 +116,8 @@ def get_feature_extractor(name: str, device: torch.device) -> tuple[nn.Module, t
         extractor, input_size = get_timm_model('.'.join([model, variant]) if variant != 'default' else model)
 
     extractor.to(device)
+    extractor.eval()
+    extractor.requires_grad_(False)
 
     logger.info(f'Feature extractor class: "{extractor.__class__.__qualname__}"')
     logger.debug(f'Input image size: {input_size}')

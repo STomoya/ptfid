@@ -71,27 +71,50 @@ def local_seed_torch(seed: int, enabled: bool = True):
         enabled (bool, optional): Enable local seed if True. Default: True.
 
     """
+    cuda_is_available = torch.cuda.is_available()
+
     if enabled:
         random_state_cpu = torch.get_rng_state()
-        deterministic = torch.are_deterministic_algorithms_enabled()
-        if torch.cuda.is_available():
+        if cuda_is_available:
             # Currently we only work on one process.
             random_state_gpu = torch.cuda.get_rng_state()
-            cudnn_benchmark = torch.backends.cudnn.benchmark
 
         torch.manual_seed(seed)
-        torch.use_deterministic_algorithms(True)
-        if torch.cuda.is_available():
+        if cuda_is_available:
             torch.cuda.manual_seed(seed)
-            torch.backends.cudnn.benchmark = False
 
     yield
 
     if enabled:
         torch.set_rng_state(random_state_cpu)
-        torch.use_deterministic_algorithms(deterministic)
-        if torch.cuda.is_available():
+        if cuda_is_available:
             torch.cuda.set_rng_state(random_state_gpu)
+
+
+@contextmanager
+def local_deterministic(enabled: bool = True):
+    """Localy set to use deterministic algorithms.
+
+    Args:
+    ----
+        enabled (bool, optional): Default: True.
+
+    """
+    cuda_is_available = torch.cuda.is_available()
+    if enabled:
+        deterministic = torch.are_deterministic_algorithms_enabled()
+        if cuda_is_available:
+            cudnn_benchmark = torch.backends.cudnn.benchmark
+
+        torch.use_deterministic_algorithms(mode=True, warn_only=True)
+        if cuda_is_available:
+            torch.backends.cudnn.benchmark = False
+
+    yield
+
+    if enabled:
+        torch.use_deterministic_algorithms(deterministic)
+        if cuda_is_available:
             torch.backends.cudnn.benchmark = cudnn_benchmark
 
 
@@ -99,6 +122,7 @@ def local_seed_torch(seed: int, enabled: bool = True):
 def local_seed(
     seed: int,
     enabled: bool = True,
+    deterministic: bool = True,
     seed_builtin: int | None = None,
     seed_numpy: int | None = None,
     seed_torch: int | None = None,
@@ -109,6 +133,7 @@ def local_seed(
     ----
         seed (int): Seed.
         enabled (bool, optional): Enable local seed if True. Default: True.
+        deterministic (bool, optional): Enable deterministic algorithm. Default: True.
         seed_builtin (int, optional): Seed for `random`. If not given `seed` is used.
         seed_numpy (int, optional): Seed for `numpy`. If not given `seed` is used.
         seed_torch (int, optional): Seed for `torch`. If not given `seed` is used.
@@ -122,6 +147,7 @@ def local_seed(
         local_seed_builtin(seed_builtin, enabled),
         local_seed_numpy(seed_numpy, enabled),
         local_seed_torch(seed_torch, enabled),
+        local_deterministic(deterministic),
     ):
         yield
 

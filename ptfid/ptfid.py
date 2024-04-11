@@ -13,7 +13,7 @@ from ptfid.core import compute_metrics_from_features
 from ptfid.data.dataset import create_dataset
 from ptfid.feature import get_feature_extractor
 from ptfid.logger import Timer, get_logger
-from ptfid.utils import InMemoryFeatureCache
+from ptfid.utils import InMemoryFeatureCache, local_deterministic
 
 
 @torch.no_grad()
@@ -33,10 +33,11 @@ def get_features(dataset, model: torch.nn.Module, device: torch.device, progress
 
     """
     features = []
-    for batch in tqdm(dataset, disable=not progress, bar_format='{l_bar}{bar:15}{r_bar}'):
-        image = batch['image'].to(device)
-        output = model(image)
-        features.append(output.cpu().numpy())
+    with local_deterministic():
+        for batch in tqdm(dataset, disable=not progress, bar_format='{l_bar}{bar:15}{r_bar}'):
+            image = batch['image'].to(device)
+            output = model(image)
+            features.append(output.cpu().numpy())
     features = np.concatenate(features)
     return features
 

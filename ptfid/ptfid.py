@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 
 from ptfid import utils
-from ptfid.core import compute_metrics_from_features
+from ptfid.core import calculate_metrics_from_features
 from ptfid.data.dataset import create_dataset
 from ptfid.feature import get_feature_extractor
 from ptfid.logger import Timer, get_logger
@@ -216,7 +216,7 @@ def calculate_metrics_from_folders(
     logger.info('Compute metrics...')
     timer.start()
 
-    results = compute_metrics_from_features(
+    results = calculate_metrics_from_features(
         features1=real_features,
         features2=fake_features,
         fid=fid,
@@ -246,7 +246,7 @@ def calculate_metrics_from_folders(
     duration = timer.done()
     logger.info(f'Done. Duration: {duration}')
 
-    # Keeping this functionality out from `compute_metrics_from_features()`, which should focus only on metric
+    # Keeping this functionality out from `calculate_metrics_from_features()`, which should focus only on metric
     # computation.
     if result_file is not None:
         utils.save_json(obj=results, filename=result_file, avoid_overwrite=True)

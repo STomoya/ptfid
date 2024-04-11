@@ -11,7 +11,7 @@ from ptfid.core.toppr import calculate_toppr
 from ptfid.logger import Timer, get_logger
 
 
-def compute_metrics_from_features(
+def calculate_metrics_from_features(
     features1: np.ndarray,
     features2: np.ndarray,
     fid: bool = True,

@@ -6,7 +6,6 @@ from typing import Callable
 
 import torch
 import torch.nn as nn
-from numpy import extract
 
 from ptfid.feature.clip import (
     get_clip_arch_model,

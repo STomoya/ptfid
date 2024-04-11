@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Literal
 
 import numpy as np
 import torch
@@ -108,6 +108,21 @@ def tf_resize(image: Image.Image, size: tuple[int, int]) -> torch.Tensor:
     return image
 
 
-def get_resize(name: str) -> Callable[[Image.Image, tuple[int, int]], torch.Tensor]:
-    """Create resizing function based on name."""
+def get_resize(
+    name: Literal['clean', 'torch', 'tensorflow', 'pillow'],
+    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
+) -> Callable[[Image.Image, tuple[int, int]], torch.Tensor]:
+    """Create resizing function based on name.
+
+    Args:
+    ----
+        name (Literal['clean', 'torch', 'tensorflow', 'pillow']): Name of the resizer.
+        interpolation (Literal['bicubic', 'bilinear'], optional): Interpolation mode. Default: 'bicubic'.
+
+    Returns:
+    -------
+        Callable: Function for resize.
+
+    """
+    set_interpolation(interpolation)
     return {'clean': clean_resize2, 'torch': torch_resize, 'tensorflow': tf_resize, 'pillow': pil_resize}[name]

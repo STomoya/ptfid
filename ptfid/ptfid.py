@@ -75,6 +75,7 @@ def calculate_metrics_from_folders(
     batch_size: int = 32,
     mean: tuple[float, ...] | None = None,
     std: tuple[float, ...] | None = None,
+    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
     num_workers: int = 8,
     # Feature extraction.
     device: Literal['cpu', 'cuda'] = 'cuda',
@@ -129,6 +130,7 @@ def calculate_metrics_from_folders(
         batch_size (int, optional): Batch size. Default: 32.
         mean (list[float] | float | None, optional): Mean for custom normalize. Default: None.
         std (list[float] | float | None, optional): Std for custom normalize. Default: None.
+        interpolation (Literal['bicubic', 'bilinear'], optional): Interpolation mode. Default: 'bicubic'.
         num_workers (int, optional): Number of workers for DataLoader. Default: 8.
         device (Literal['cpu', 'cuda'], optional): Device to run feature extraction. Default: 'cuda'.
         cache_features (bool, optional): Cache real features to skip feature extraction on later calls. Useful when
@@ -178,6 +180,7 @@ def calculate_metrics_from_folders(
             normalize_name=normalizer,
             mean=mean,
             std=std,
+            interpolation=interpolation,
             num_workers=num_workers,
             pin_memory=device == 'cuda',
         )
@@ -201,6 +204,7 @@ def calculate_metrics_from_folders(
         normalize_name=normalizer,
         mean=mean,
         std=std,
+        interpolation=interpolation,
         num_workers=num_workers,
         pin_memory=device == 'cuda',
     )

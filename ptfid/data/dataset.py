@@ -20,6 +20,7 @@ def create_dataset(
     normalize_name: Literal['torch', 'clip', 'inception', 'custom'] = 'inception',
     mean: list[float] | float | None = None,
     std: list[float] | float | None = None,
+    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
     num_workers: int = 8,
     pin_memory: bool = True,
 ) -> DataLoader:
@@ -46,6 +47,7 @@ def create_dataset(
             Default: 'inception'.
         mean (list[float] | float | None, optional): Mean. Default: None.
         std (list[float] | float | None, optional): Std. Default: None.
+        interpolation (Literal['bicubic', 'bilinear'], optional): Interpolation mode. Default: 'bicubic'
         num_workers (int, optional): Number of workers for DataLoader. Default: 8.
         pin_memory (bool, optional): Pin memory for DataLoader. Default: True.
 
@@ -62,7 +64,7 @@ def create_dataset(
 
     dataset = dataset.cast_column('image', Image())
 
-    resizer = resize.get_resize(resize_name)
+    resizer = resize.get_resize(resize_name, interpolation=interpolation)
     normalizer = normalize.get_normalize(normalize_name, v2=True, mean=mean, std=std)
 
     def transform_sample(sample):

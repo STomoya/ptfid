@@ -10,7 +10,6 @@ from typing import Optional
 import typer
 from typing_extensions import Annotated
 
-from ptfid.data.resize import set_interpolation
 from ptfid.logger import get_logger
 from ptfid.ptfid import calculate_metrics_from_folders
 
@@ -104,8 +103,6 @@ def main(
     local_vars.pop('logger')
     logger.debug('Arguments:\n' + pprint.pformat(local_vars, sort_dicts=False))
 
-    set_interpolation(mode=interpolation)
-
     results = calculate_metrics_from_folders(
         dataset_dir1=dataset_dir1,
         dataset_dir2=dataset_dir2,
@@ -136,6 +133,7 @@ def main(
         batch_size=batch_size,
         mean=mean,
         std=std,
+        interpolation=interpolation,
         num_workers=num_workers,
         device=device,
         cache_features=False,  # We don't need to cache features when exc as cmd.

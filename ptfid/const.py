@@ -20,6 +20,7 @@ FDD_ARGUMENTS = dict(
 SWAVFID_ARGUMENTS = dict(
     feature_extractor='resnet50',
     resizer='pillow',
+    interpolation='bilinear',
     normalizer='imagenet',
 )
 COMMON_ARGUMENTS = dict(

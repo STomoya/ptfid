@@ -6,7 +6,7 @@ import datetime
 import logging
 import time
 
-LOGGER_NAME = 'ptfid'
+from ptfid.const import LOGGER_NAME
 
 
 def get_logger(

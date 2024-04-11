@@ -12,13 +12,11 @@ from torchvision.transforms.functional import resize, to_tensor
 from torchvision.transforms.v2.functional import resize as resize_v2
 from torchvision.transforms.v2.functional import to_dtype, to_image
 
+from ptfid.const import PIL_INTERP_MODE, TORCH_INTERP_MODE
 from ptfid.data.interpolate_compat_tensorflow import interpolate_bilinear_2d_like_tensorflow1x
 from ptfid.data.interpolate_compat_tensorflow_orig import (
     interpolate_bilinear_2d_like_tensorflow1x as interpolate_bilinear_2d_like_tensorflow1x_orig,
 )
-
-PIL_INTERP_MODE = Image.BICUBIC
-TORCH_INTERP_MODE = InterpolationMode.BICUBIC
 
 
 def set_interpolation(mode: str = 'bicubic'):

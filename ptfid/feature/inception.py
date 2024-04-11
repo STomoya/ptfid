@@ -12,12 +12,6 @@ import torchvision
 
 from ptfid.feature.utils import load_state_dict_from_url
 
-# Inception weights ported to Pytorch from
-# http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
-FID_WEIGHTS_URL = (
-    'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'
-)
-
 
 class InceptionV3(nn.Module):
     """Pytorch implementation of InceptionV3 model with some modifications to fit tf implementation.
@@ -38,7 +32,9 @@ class InceptionV3(nn.Module):
 
         """
         super().__init__()
-        state_dict = load_state_dict_from_url(FID_WEIGHTS_URL)
+        state_dict = load_state_dict_from_url(
+            'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'
+        )
 
         inception = _inception_v3(num_classes=1008, aux_logits=False, init_weights=True)
         # replace some layers to match tf implementation.

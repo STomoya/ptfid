@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import torch
+import torch.nn as nn
 from tqdm import tqdm
 
 from ptfid import utils
@@ -45,7 +46,7 @@ def get_features(dataset, model: torch.nn.Module, device: torch.device, progress
 def calculate_metrics_from_folders(
     dataset_dir1: str,
     dataset_dir2: str,
-    feature_extractor: str = 'inceptionv3',
+    feature_extractor: str | nn.Module = 'inceptionv3',
     # Metric flags.
     fid: bool = True,
     kid: bool = False,
@@ -81,6 +82,7 @@ def calculate_metrics_from_folders(
     device: Literal['cpu', 'cuda'] = 'cuda',
     cache_features: bool = True,
     dataset1_is_real: bool = True,
+    image_size: int | None = None,
     # Other arguments.
     result_file: str | None = None,
 ) -> dict[str, float]:
@@ -90,7 +92,8 @@ def calculate_metrics_from_folders(
     ----
         dataset_dir1 (str): Dir to dataset.
         dataset_dir2 (str): Dir to dataset.
-        feature_extractor (str, optional): Name of the feature extractor. Default: 'inceptionv3'.
+        feature_extractor (str | nn.Module, optional): Name of the feature extractor or a nn.Module object. If the given
+            object is a nn.Module, `image_size` argument is also required. Default: 'inceptionv3'.
         fid (bool, optional): Flag. False to skip calculation. Default: True.
         kid (bool, optional): Flag. False to skip calculation.  Default: False.
         pr (bool, optional): Flag. False to skip calculation.  Default: True.
@@ -136,6 +139,8 @@ def calculate_metrics_from_folders(
         cache_features (bool, optional): Cache real features to skip feature extraction on later calls. Useful when
             computing scores on different generated image sets. Default: True.
         dataset1_is_real (bool, optional): Switch real dataset argument. Default: True.
+        image_size (int, optional): Input size of feature extractor. Required when feature_extractor argument is a
+            nn.Module. Ignored otherwise. Default: None.
         result_file (str, optional): JSON file to save results.
 
     Returns:
@@ -150,7 +155,29 @@ def calculate_metrics_from_folders(
         (dataset_dir1, dataset_dir2) if dataset1_is_real else (dataset_dir2, dataset_dir1)
     )
 
-    model, image_size = get_feature_extractor(feature_extractor, device=device)
+    # models supported by `ptfid`.
+    if isinstance(feature_extractor, str):
+        model, image_size = get_feature_extractor(feature_extractor, device=device)
+    # nn.Module input as `feature_extraction` argument.
+    elif isinstance(feature_extractor, nn.Module):
+        # `image_size` argument is required in this case.
+        if image_size is None:
+            raise Exception('If passing a nn.Module as `feature_extractor`, `image_size` must be given.')
+
+        if isinstance(image_size, int):
+            image_size = (image_size, image_size)
+        if len(image_size) != 2:
+            raise Exception('`image_size` must be a sequence of 2 elements or an integer object.')
+
+        # ensure the model is ready for eval usage.
+        model = feature_extractor.to(device=device)
+        model.eval()
+        model.requires_grad_(False)
+
+    # Check output size meets requirements.
+    _output: torch.Tensor = model(torch.randn(1, 3, *image_size))
+    if _output.ndim != 2:
+        raise Exception(f'The output vector must have 2 dimensions. Got {_output.ndim}.')
 
     logger.info('Extract features from real dataset...')
     timer.start()

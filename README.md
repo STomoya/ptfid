@@ -225,6 +225,7 @@ $ python -m ptfid --help
   from ptfid import calculate_metrics_from_folders
 
   feature_extractor = create_model(...)  # output feature must have `.ndim == 2`
+  input_size = (224, 224)
 
   results = calculate_metrics_from_folders(
       dataset_dir1='./dir/to/images1',
@@ -233,6 +234,7 @@ $ python -m ptfid --help
       fid=True,
       resizer='clean',
       normalizer='imagenet',
+      image_size=input_size,  # `image_size` argument is required.
       result_file='results.json',
   )
   ```

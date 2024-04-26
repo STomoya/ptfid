@@ -8,3 +8,4 @@ from ptfid.data.resize import get_resize
 from ptfid.feature import get_feature_extractor
 from ptfid.logger import get_logger
 from ptfid.ptfid import calculate_metrics_from_folders
+from ptfid.version import __version__

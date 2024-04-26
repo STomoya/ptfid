@@ -377,10 +377,10 @@ The source codes of this repository are based on several publicly available impl
 ```bibtex
 @inproceedings{NEURIPS2019_0234c510,
   author    = {Kynk\"{a}\"{a}nniemi, Tuomas and Karras, Tero and Laine, Samuli and Lehtinen, Jaakko and Aila, Timo},
-  booktitle = {Advances in Neural Information Processing Systems},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   editor    = {H. Wallach and H. Larochelle and A. Beygelzimer and F. d\textquotesingle Alch\'{e}-Buc and E. Fox and R. Garnett},
   publisher = {Curran Associates, Inc.},
-  title     = {Improved Precision and Recall Metric for Assessing Generative Models (NeurIPS)},
+  title     = {Improved Precision and Recall Metric for Assessing Generative Models},
   volume    = {32},
   year      = {2019},
   pages     = {3927--3936},

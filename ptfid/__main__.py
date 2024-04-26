@@ -145,5 +145,9 @@ def main(
     logger.info(f'All results:\n{results_str}')
 
 
-if __name__ == '__main__':
+def cli():
     typer.run(main)
+
+
+if __name__ == '__main__':
+    cli()

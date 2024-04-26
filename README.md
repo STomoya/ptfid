@@ -25,6 +25,30 @@ PyTorch implementation of Fréchet inception distance (FID).
 
 - Topological Precision & Recall (TopP&R)
 
+## Install
+
+- pip:
+
+  ```sh
+  pip install git+https://github.com/STomoya/ptfid.git
+  ```
+
+- From source:
+
+  ```sh
+  git clone https://github.com/STomoya/ptfid.git
+  cd ptfid
+  pip install --user -e .
+  ```
+
+- (Optional) install xformers for DINOv2 models:
+
+  `--extra-index-url` should be changed depending on the environment.
+
+  ```sh
+  pip install xformers --extra-index-url https://download.pytorch.org/whl/cu118
+  ```
+
 ## Usage
 
 - Compute FID between two image folders. This command will create a `result.json` containing the computed scores.

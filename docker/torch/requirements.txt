@@ -1,9 +1,9 @@
-git+https://github.com/STomoya/storch@v0.5.10
-ninja
 datasets[vision]
-timm
 gudhi
+ninja
 open_clip_torch
+scikit-learn
+timm
 typer
 
 ## optional

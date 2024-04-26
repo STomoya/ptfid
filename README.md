@@ -3,7 +3,7 @@
 PyTorch implementation of Fréchet inception distance (FID).
 
 > [!CAUTION]
-> Use the original implementations when directly comparing with results that are reported in research papers.
+> **Use the original implementations when directly comparing with results that are reported in research papers.**
 
 ## Metrics
 
@@ -50,6 +50,8 @@ PyTorch implementation of Fréchet inception distance (FID).
   ```
 
 ## Usage
+
+### CLI
 
 - Compute FID between two image folders. This command will create a `result.json` containing the computed scores.
 
@@ -137,9 +139,16 @@ PyTorch implementation of Fréchet inception distance (FID).
     python -m ptfid ./dir/to/dataset1 ./dir/to/dataset2 --log-file log.log
     ```
 
+- Command:
+
+  If `ptfid` was installed via pip, you can replace `python -m ptfid` with the `ptfid` command.
+
+  ```sh
+  ptfid ./dir/to/dataset1 ./dir/to/dataset2
+  ```
 
 <details>
-<summary>Help of ptfid</summary>
+<summary>Help of <code>ptfid</code></summary>
 
 ```sh
 $ python -m ptfid --help
@@ -192,6 +201,41 @@ $ python -m ptfid --help
 ```
 </details>
 
+### Source
+
+- Use `ptfid` from source:
+
+  ```python
+  from ptfid import calculate_metrics_from_folders
+
+  results = calculate_metrics_from_folders(
+      dataset_dir1='./dir/to/images1',
+      dataset_dir2='./dir/to/images2',
+      feature_extractor='inceptionv3',
+      fid=True,
+      resizer='tensorflow',
+      normalizer='inception',
+      result_file='results.json',
+  )
+  ```
+
+- User defined feature extractors can also be specified:
+
+  ```python
+  from ptfid import calculate_metrics_from_folders
+
+  feature_extractor = create_model(...)  # output feature must have `.ndim == 2`
+
+  results = calculate_metrics_from_folders(
+      dataset_dir1='./dir/to/images1',
+      dataset_dir2='./dir/to/images2',
+      feature_extractor=feature_extractor,
+      fid=True,
+      resizer='clean',
+      normalizer='imagenet',
+      result_file='results.json',
+  )
+  ```
 
 ## Comparisons with original implementations
 

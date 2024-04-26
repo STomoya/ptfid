@@ -9,7 +9,7 @@ import os
 
 import torch
 import torch.nn as nn
-from stutil.download import download_url
+from torchvision.datasets.utils import download_url
 
 
 @contextlib.contextmanager
@@ -39,14 +39,15 @@ class InceptionV3W(nn.Module):
         super(InceptionV3W, self).__init__()
         # download the network if it is not present at the given directory
         # use the current directory by default
-        filename = 'inception-2015-12-05-ts.pt'
+        filename = 'inception-2015-12-05-ts.pt'  # Add -ts (TorchScript) prefix to prevent name collision.
+        cache_folder = './.cache/ptfid/weights'
         if download:
             download_url(
                 'https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/metrics/inception-2015-12-05.pt',
-                root='./.cache/pyfid/weights',
+                root=cache_folder,
                 filename=filename,
             )
-        path = os.path.join('./.cache/pyfid/weights', filename)
+        path = os.path.join(cache_folder, filename)
         self.base = torch.jit.load(path).eval()
         self.layers = self.base.layers
 

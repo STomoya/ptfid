@@ -175,7 +175,7 @@ def calculate_metrics_from_folders(
         model.requires_grad_(False)
 
     # Check output size meets requirements.
-    _output: torch.Tensor = model(torch.randn(1, 3, *image_size))
+    _output: torch.Tensor = model(torch.randn(1, 3, *image_size, device=device))
     if _output.ndim != 2:
         raise Exception(f'The output vector must have 2 dimensions. Got {_output.ndim}.')
 

@@ -190,9 +190,9 @@ class InMemoryFeatureCache(FeatureCache):
     @classmethod
     def set(cls, folder, model, features):
         """Set features."""
-        cls._cache[tuple(folder, model)] = features
+        cls._cache[(folder, model)] = features
 
     @classmethod
     def get(cls, folder, model):
         """Get features."""
-        return cls._cache.get(tuple(folder, model))
+        return cls._cache.get((folder, model))

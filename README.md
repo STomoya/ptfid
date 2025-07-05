@@ -295,6 +295,21 @@ $ python -m ptfid --help
 
 The source codes of this repository are based on several publicly available implementations of FID calculations. Many thanks to those who have published their excellent works. Specifically, official implementations of [FID](https://github.com/bioinf-jku/TTUR), [CleanFID](https://github.com/GaParmar/clean-fid), [FDD](https://github.com/layer6ai-labs/dgm-eval), [SwAV-FID](https://github.com/stanis-morozov/self-supervised-gan-eval), [D&C](https://github.com/clovaai/generative-evaluation-prdc), [PP&PR](https://github.com/kdst-team/Probablistic_precision_recall), [TopP&R](https://github.com/LAIT-CVLab/TopPR). Also, [efficient computation of FID](https://github.com/layer6ai-labs/dgm-eval), and [fast computation of FID on GPU](https://github.com/jaywu109/faster-pytorch-fid).
 
+## Citation
+
+This repository is created as part of the following research paper.
+
+```bibtex
+@inproceedings{10.1007/978-3-031-92808-6_9,
+    author    = {Sawada, Tomoya and Katsurai, Marie},
+    title     = {Evaluation of Illustration Generators with Domain-Specific Representations},
+    booktitle = {ECCV 2024 Workshops AI for Visual Arts Workshop and Challenges (AI4VA)},
+    year      = {2025},
+    pages     = {139--154},
+    doi       = {10.1007/978-3-031-92808-6_9}
+}
+```
+
 ## References
 
 - FID
@@ -420,11 +435,11 @@ The source codes of this repository are based on several publicly available impl
 
 ```bibtex
 @inproceedings{kim2023toppr,
-  author={Pum Jun Kim and Yoojin Jang and Jisu Kim and Jaejun Yoo},
-  booktitle={Thirty-seventh Conference on Neural Information Processing Systems (NeurIPS)},
-  title={TopP\&R: Robust Support Estimation Approach for Evaluating Fidelity and Diversity in Generative Models},
-  year={2023},
-  url={https://openreview.net/forum?id=2gUCMr6fDY}
+  author    = {Pum Jun Kim and Yoojin Jang and Jisu Kim and Jaejun Yoo},
+  booktitle = {Thirty-seventh Conference on Neural Information Processing Systems (NeurIPS)},
+  title     = {TopP\&R: Robust Support Estimation Approach for Evaluating Fidelity and Diversity in Generative Models},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=2gUCMr6fDY}
 }
 ```
 

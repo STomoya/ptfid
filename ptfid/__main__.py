@@ -3,57 +3,41 @@
 # ruff: noqa: D103
 from __future__ import annotations
 
+import logging
 import pprint
-from enum import Enum
 from typing import Optional
 
 import typer
 from typing_extensions import Annotated
 
+from ptfid.config import (
+    Devices,
+    FeatureExtractionParameters,
+    FIDComputeMethods,
+    FIDParameters,
+    Interpolations,
+    KIDParameters,
+    LogLevels,
+    MetricFlags,
+    MetricParameters,
+    Normalizers,
+    PPPRParameters,
+    PRParameters,
+    Resizers,
+    TopPRParameters,
+)
 from ptfid.logger import get_logger
 from ptfid.ptfid import calculate_metrics_from_folders
 
-
-class FIDComputeMethods(str, Enum):
-    """FID compute methods."""
-
-    original = 'original'
-    efficient = 'efficient'
-    gpu = 'gpu'
-
-
-class Resizers(str, Enum):
-    """Resizer enum."""
-
-    clean = 'clean'
-    torch = 'torch'
-    tensorflow = 'tensorflow'
-    pillow = 'pillow'
+app = typer.Typer(
+    rich_markup_mode='markdown',
+    pretty_exceptions_enable=False,
+    pretty_exceptions_show_locals=False,
+    pretty_exceptions_short=True,
+)
 
 
-class Interpolations(str, Enum):
-    """Interpolation methods."""
-
-    bilinear = 'bilinear'
-    bicubic = 'bicubic'
-
-
-class Normalizers(str, Enum):
-    """Normalizer enum."""
-
-    imagenet = 'imagenet'
-    openai = 'openai'
-    inception = 'inception'
-    custom = 'custom'
-
-
-class Devices(str, Enum):
-    """Device enum."""
-
-    cpu = 'cpu'
-    cuda = 'cuda'
-
-
+@app.command()
 def main(
     dataset_dir1: Annotated[str, typer.Argument(help='Dir to dataset.')],
     dataset_dir2: Annotated[str, typer.Argument(help='Dir to dataset.')],
@@ -95,49 +79,58 @@ def main(
     # other arguments.
     log_file: Annotated[Optional[str], typer.Option(help='File to output logs.')] = None,
     result_file: Annotated[str, typer.Option(help='JSON file to save results to.')] = 'results.json',
+    log_level: Annotated[LogLevels, typer.Option(help='Logging level.')] = 'warning',
 ):
     """Calculate generative metrics given two image folders."""
-    logger = get_logger(filename=log_file)
+    logger = get_logger(filename=log_file, logging_level=getattr(logging, log_level.upper()))
 
     local_vars = locals()
     local_vars.pop('logger')
     logger.debug('Arguments:\n' + pprint.pformat(local_vars, sort_dicts=False))
 
-    results = calculate_metrics_from_folders(
-        dataset_dir1=dataset_dir1,
-        dataset_dir2=dataset_dir2,
-        feature_extractor=feature_extractor,
-        fid=fid,
-        kid=kid,
-        pr=pr,
-        dc=dc,
-        pppr=pppr,
-        toppr=toppr,
-        eps=eps,
-        fid_compute_method=fid_compute_method,
-        kid_times=kid_times,
-        kid_subsets=kid_subsets,
-        kid_subset_size=kid_subset_size,
-        kid_degree=kid_degree,
-        kid_gamma=kid_gamma,
-        kid_coef0=kid_coef0,
-        pr_nearest_k=pr_nearest_k,
-        pppr_alpha=pppr_alpha,
-        toppr_alpha=toppr_alpha,
-        toppr_kernel=toppr_kernel,
-        toppr_randproj=toppr_randproj,
-        toppr_f1=toppr_f1,
+    metric_flags = MetricFlags(fid=fid, kid=kid, pr=pr, dc=dc, pppr=pppr, toppr=toppr)
+    metric_params = MetricParameters(
+        fid=FIDParameters(eps=eps, method=fid_compute_method),
+        kid=KIDParameters(
+            times=kid_times,
+            subsets=kid_subsets,
+            subset_size=kid_subset_size,
+            degree=kid_degree,
+            gamma=kid_gamma,
+            coef0=kid_coef0,
+        ),
+        pr=PRParameters(nearest_k=pr_nearest_k),
+        pppr=PPPRParameters(alpha=pppr_alpha),
+        toppr=TopPRParameters(
+            alpha=toppr_alpha,
+            kernel=toppr_kernel,
+            randproj=toppr_randproj,
+            f1=toppr_f1,
+        ),
         seed=seed,
+        feat1_is_real=True,
+    )
+    feature_params = FeatureExtractionParameters(
+        feature_extractor=feature_extractor,
+        device=device,
+        cache_features=False,
+        image_size=None,
+        dataset1_is_real=dataset1_is_real,
         resizer=resizer,
+        interpolation=interpolation,
         normalizer=normalizer,
         batch_size=batch_size,
         mean=mean,
         std=std,
-        interpolation=interpolation,
         num_workers=num_workers,
-        device=device,
-        cache_features=False,  # We don't need to cache features when exc as cmd.
-        dataset1_is_real=dataset1_is_real,
+    )
+
+    results = calculate_metrics_from_folders(
+        dataset_dir1=dataset_dir1,
+        dataset_dir2=dataset_dir2,
+        metrics=metric_flags,
+        metric_params=metric_params,
+        feature_params=feature_params,
         result_file=result_file,
     )
 
@@ -150,4 +143,4 @@ def cli():
 
 
 if __name__ == '__main__':
-    cli()
+    app()

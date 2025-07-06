@@ -17,12 +17,15 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
+requires-python=">=3.10,<3.13"
 dependencies = [
     "datasets[vision]",
     "gudhi==3.9.0",
     "ninja",
     "open_clip_torch",
+    "pydantic>=2.11.7",
     "scikit-learn",
+    "scipy==1.15.0",
     "timm",
     "torch",
     "torchvision",

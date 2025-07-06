@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import glob
 import os
-from typing import Literal
 
 from datasets import Dataset, Image
 from torch.utils.data import DataLoader
 
+from ptfid.config import Interpolations, Normalizers, Resizers
 from ptfid.data import normalize, resize
 
 
@@ -16,11 +16,11 @@ def create_dataset(
     image_folder: str,
     batch_size: int,
     image_size: tuple[int, int] = (299, 299),
-    resize_name: Literal['clean', 'torch', 'tensorflow', 'pillow'] = 'tensorflow',
-    normalize_name: Literal['torch', 'clip', 'inception', 'custom'] = 'inception',
+    resize_name: Resizers = 'tensorflow',
+    normalize_name: Normalizers = 'inception',
     mean: list[float] | float | None = None,
     std: list[float] | float | None = None,
-    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
+    interpolation: Interpolations = 'bicubic',
     num_workers: int = 8,
     pin_memory: bool = True,
 ) -> DataLoader:

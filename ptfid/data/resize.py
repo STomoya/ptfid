@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Literal
+from typing import Callable
 
 import numpy as np
 import torch
@@ -12,6 +12,7 @@ from torchvision.transforms.functional import resize, to_tensor
 from torchvision.transforms.v2.functional import resize as resize_v2
 from torchvision.transforms.v2.functional import to_dtype, to_image
 
+from ptfid.config import Interpolations, Resizers
 from ptfid.const import PIL_INTERP_MODE, TORCH_INTERP_MODE
 from ptfid.data.interpolate_compat_tensorflow import interpolate_bilinear_2d_like_tensorflow1x
 from ptfid.data.interpolate_compat_tensorflow_orig import (
@@ -19,7 +20,7 @@ from ptfid.data.interpolate_compat_tensorflow_orig import (
 )
 
 
-def set_interpolation(mode: str = 'bicubic'):
+def set_interpolation(mode: Interpolations = 'bicubic'):
     """Set interpolation mode for libraries. The tf_resize can only be set to bilinear."""
     global PIL_INTERP_MODE, TORCH_INTERP_MODE  # noqa: PLW0603
     assert mode in ['bicubic', 'bilinear']
@@ -109,15 +110,15 @@ def tf_resize(image: Image.Image, size: tuple[int, int]) -> torch.Tensor:
 
 
 def get_resize(
-    name: Literal['clean', 'torch', 'tensorflow', 'pillow'],
-    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
+    name: Resizers,
+    interpolation: Interpolations = 'bicubic',
 ) -> Callable[[Image.Image, tuple[int, int]], torch.Tensor]:
     """Create resizing function based on name.
 
     Args:
     ----
-        name (Literal['clean', 'torch', 'tensorflow', 'pillow']): Name of the resizer.
-        interpolation (Literal['bicubic', 'bilinear'], optional): Interpolation mode. Default: 'bicubic'.
+        name (Resizers): Name of the resizer.
+        interpolation (Interpolations, optional): Interpolation mode. Default: 'bicubic'.
 
     Returns:
     -------
@@ -125,4 +126,9 @@ def get_resize(
 
     """
     set_interpolation(interpolation)
-    return {'clean': clean_resize2, 'torch': torch_resize, 'tensorflow': tf_resize, 'pillow': pil_resize}[name]
+    return {
+        Resizers.clean: clean_resize2,
+        Resizers.torch: torch_resize,
+        Resizers.tensorflow: tf_resize,
+        Resizers.pillow: pil_resize,
+    }[name]

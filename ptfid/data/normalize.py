@@ -9,6 +9,7 @@ from torchvision.transforms.functional import normalize as normalize_fn
 from torchvision.transforms.v2.functional import normalize as normalizev2_fn
 
 from ptfid import const
+from ptfid.config import Normalizers
 
 
 def get_normalize(
@@ -23,22 +24,22 @@ def get_normalize(
     if isinstance(std, float):
         std = [std]
 
-    if lib == 'imagenet':
+    if lib == Normalizers.imagenet:
 
         def normalize(tensor):
             return _normalize_fn(tensor, const.TORCH_IMAGENET_MEAN, const.TORCH_IMAGENET_STD)
 
-    elif lib == 'openai':
+    elif lib == Normalizers.openai:
 
         def normalize(tensor):
             return _normalize_fn(tensor, const.CLIP_IMAGENET_MEAN, const.CLIP_IMAGENET_STD)
 
-    elif lib == 'inception':
+    elif lib == Normalizers.inception:
 
         def normalize(tensor):
             return _normalize_fn(tensor, const.TF_INCEPTION_MEAN, const.TF_INCEPTION_STD)
 
-    elif lib == 'custom':
+    elif lib == Normalizers.custom:
         assert mean is not None and std is not None
         if v2:
             assert isinstance(mean, Sequence) and isinstance(std, Sequence)

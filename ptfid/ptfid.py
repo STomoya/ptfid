@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 import numpy as np
 import torch
 import torch.nn as nn
 from tqdm import tqdm
 
 from ptfid import utils
+from ptfid.config import FeatureExtractionParameters, MetricFlags, MetricParameters
+from ptfid.const import FEATURE_PARAMS_DEFAULT, METRIC_FLAGS_DEFAULT, METRIC_PARAMS_DEFAULT
 from ptfid.core import calculate_metrics_from_features
 from ptfid.data.dataset import create_dataset
 from ptfid.feature import get_feature_extractor
@@ -26,7 +26,7 @@ def get_features(dataset, model: torch.nn.Module, device: torch.device, progress
         dataset (DataLoader): The dataset.
         model (torch.nn.Module): feature extractor model.
         device (torch.device): device
-        progress (boo, optional): show progress bar. Default: False
+        progress (boo, optional): show progress bar. Defaults to False
 
     Returns:
     -------
@@ -46,43 +46,12 @@ def get_features(dataset, model: torch.nn.Module, device: torch.device, progress
 def calculate_metrics_from_folders(
     dataset_dir1: str,
     dataset_dir2: str,
-    feature_extractor: str | nn.Module = 'inceptionv3',
     # Metric flags.
-    fid: bool = True,
-    kid: bool = False,
-    pr: bool = False,
-    dc: bool = False,
-    pppr: bool = False,
-    toppr: bool = False,
+    metrics: MetricFlags = METRIC_FLAGS_DEFAULT,
     # Metric parameters.
-    eps: float = 1e-12,
-    fid_compute_method: Literal['original', 'efficient', 'gpu'] = 'efficient',
-    kid_times: float = 100.0,
-    kid_subsets: int = 100,
-    kid_subset_size: int = 1000,
-    kid_degree: float = 3.0,
-    kid_gamma: float | None = None,
-    kid_coef0: float = 1.0,
-    pr_nearest_k: int = 5,
-    pppr_alpha: float = 1.2,
-    toppr_alpha: float = 0.1,
-    toppr_kernel: str = 'cosine',
-    toppr_randproj: bool = True,
-    toppr_f1: bool = True,
-    seed: int = 0,
-    # Dataset parameters.
-    resizer: Literal['clean', 'torch', 'tensorflow', 'pillow'] = 'tensorflow',
-    normalizer: Literal['imagenet', 'openai', 'inception', 'custom'] = 'inception',
-    batch_size: int = 32,
-    mean: tuple[float, ...] | None = None,
-    std: tuple[float, ...] | None = None,
-    interpolation: Literal['bicubic', 'bilinear'] = 'bicubic',
-    num_workers: int = 8,
+    metric_params: MetricParameters = METRIC_PARAMS_DEFAULT,
     # Feature extraction.
-    device: Literal['cpu', 'cuda'] = 'cuda',
-    cache_features: bool = True,
-    dataset1_is_real: bool = True,
-    image_size: int | None = None,
+    feature_params: FeatureExtractionParameters = FEATURE_PARAMS_DEFAULT,
     # Other arguments.
     result_file: str | None = None,
 ) -> dict[str, float]:
@@ -92,56 +61,65 @@ def calculate_metrics_from_folders(
     ----
         dataset_dir1 (str): Dir to dataset.
         dataset_dir2 (str): Dir to dataset.
-        feature_extractor (str | nn.Module, optional): Name of the feature extractor or a nn.Module object. If the given
-            object is a nn.Module, `image_size` argument is also required. Default: 'inceptionv3'.
-        fid (bool, optional): Flag. False to skip calculation. Default: True.
-        kid (bool, optional): Flag. False to skip calculation.  Default: False.
-        pr (bool, optional): Flag. False to skip calculation.  Default: True.
-        dc (bool, optional): Flag. False to skip calculation.  Default: False.
-        pppr (bool, optional): Flag. False to skip calculation.  Default: False.
-        toppr (bool, optional): Flag. False to skip calculation.  Default: False.
-        eps (float, optional): eps for avoiding division by zero. Default: 1e-12.
-        fid_compute_method (str, optional): Determine how to compute Frechet distance. Must be one of 'original',
-            'efficient', 'gpu'. Default: 'efficient'.
-        kid_times (float, optional): Value to multiply KID after calculation. x100 is commonly used. Default: 100.0.
-        kid_subsets (int, optional): Number of subsets to compute KID. Default: 100.
-        kid_subset_size (int, optional): Subset size to compute KID. Default: 1000.
-        kid_degree (float, optional): degree for polynomial kernel. Default: 3.0.
-        kid_gamma (float | None, optional): gamma for polynomial kernel. Default: None.
-        kid_coef0 (float, optional): coef0 for polynomial kernel. Default: 1.0.
-        pr_nearest_k (int, optional): k for nearest neighbor. Default: 5.
-        pppr_alpha (float, optional): Alpha for PP&PR. Default: 1.2.
-        toppr_alpha (float, optional): Alpha for TopP&TopR. Default: 0.1.
-        toppr_kernel (str, optional): kernel for TopP&TopR. Default: 'cosine'.
-        toppr_randproj (bool, optional): Perform random projection. Default: True.
-        toppr_f1 (bool, optional): Compute F1-score. Default: True.
-        seed (int, optional): Random seed. Default: 0.
-        resizer (Literal['clean', 'torch', 'tensorflow', 'pillow'], optional): Resize method name.
-            - 'tensorflow': tensorflow v1 compatible resize. Prefered when using 'inceptionv3' as the feature extractor.
-            - 'clean': Resize presented in Clean-FID. Recommended for most cases.
-            - 'torch': Resize image in `torch.Tensor` using `torchvision.transforms.v2.functional.resize()`.
-            - 'pillow': Resize image using `Image.Image.resize()`.
-            Default: 'tensorflow'.
-
-        normalizer (Literal['imagenet', 'openai', 'inception', 'custom'], optional): Normalization method name.
-            - 'inception': (x - 0.5) / 0.5. Scale [0, 1] to [-1, 1].
-            - 'imagenet': Normalize data using ImageNet mean std.
-            - 'openai': Normalize data using mean std used to train CLIP models.
-            - 'custom': Use custom mean std.
-            Default: 'inception'.
-
-        batch_size (int, optional): Batch size. Default: 32.
-        mean (list[float] | float | None, optional): Mean for custom normalize. Default: None.
-        std (list[float] | float | None, optional): Std for custom normalize. Default: None.
-        interpolation (Literal['bicubic', 'bilinear'], optional): Interpolation mode. Default: 'bicubic'.
-        num_workers (int, optional): Number of workers for DataLoader. Default: 8.
-        device (Literal['cpu', 'cuda'], optional): Device to run feature extraction. Default: 'cuda'.
-        cache_features (bool, optional): Cache real features to skip feature extraction on later calls. Useful when
-            computing scores on different generated image sets. Default: True.
-        dataset1_is_real (bool, optional): Switch real dataset argument. Default: True.
-        image_size (int, optional): Input size of feature extractor. Required when feature_extractor argument is a
-            nn.Module. Ignored otherwise. Default: None.
-        result_file (str, optional): JSON file to save results.
+        metrics (MetricFlags, optional): Metric flags. Defaults to `MetricFlags()`.\
+            - `fid`: Flag. False to skip calculation. Defaults to `True`. \
+            - `kid`: Flag. False to skip calculation.  Defaults to `False`. \
+            - `pr`: Flag. False to skip calculation.  Defaults to `True`. \
+            - `dc`: Flag. False to skip calculation.  Defaults to `False`. \
+            - `pppr`: Flag. False to skip calculation.  Defaults to `False`. \
+            - `toppr`: Flag. False to skip calculation.  Defaults to `False`.
+        metric_params (MetricParameters, optional): Metric parameters. Defaults to `MetricParameters()`. \
+            **FID** \
+                - `eps`: eps for avoiding division by zero. Defaults to `1e-12`. \
+                - `method`: Determine how to compute Frechet distance. Must be one of 'original', \
+                    'efficient', 'gpu'. Defaults to `'efficient'`. \
+            **KID** \
+                - `times`: Value to multiply KID after calculation. x100 is commonly used. Defaults to `100.0`. \
+                - `subsets`: Number of subsets to compute KID. Defaults to `100`. \
+                - `subset_size`: Subset size to compute KID. Defaults to `1000`. \
+                - `degree`: degree for polynomial kernel. Defaults to `3.0`. \
+                - `gamma`: gamma for polynomial kernel. Defaults to `None`. \
+                - `coef0`: coef0 for polynomial kernel. Defaults to `1.0`. \
+            **P&R** \
+                - `nearest_k`: k for nearest neighbor. Defaults to `5`. \
+            **PP&PR** \
+                - `alpha`: Alpha for PP&PR. Defaults to `1.2`. \
+            **TopP&R** \
+                - `alpha`: Alpha for TopP&TopR. Defaults to `0.1`. \
+                - `kernel`: kernel for TopP&TopR. Defaults to `'cosine'`. \
+                - `randproj`: Perform random projection. Defaults to `True`. \
+                - `f1`: Compute F1-score. Defaults to `True`. \
+            **Other** (top level of `MetricParameters`) \
+                - `feat1_is_real`: Switch whether `features1` or `features2` is extracted from real samples. \
+                    Defaults to `True`. \
+                - `seed`: Random seed. Defaults to `0`.
+        feature_params (FeatureExtractionParameters, optional): Feature extraction parameters. Defaults to \
+            FeatureExtractionParameters(). \
+            - `feature_extractor`: Name of the feature extractor or a `nn.Module` object. If the given object is a \
+                `nn.Module`, `image_size` argument is also required. Defaults to `'inceptionv3'`. \
+            - resizer: Resize method name. Defaults to `'tensorflow'`. \
+                - `'tensorflow'`: tensorflow v1 compatible resize. Prefered when using 'inceptionv3' as the feature \
+                    extractor. \
+                - `'clean'`: Resize presented in Clean-FID. Recommended for most cases. \
+                - `'torch'`: Resize image in `torch.Tensor` using `torchvision.transforms.v2.functional.resize()`. \
+                - `'pillow'`: Resize image using `Image.Image.resize()`. \
+            - normalizer: Normalization method name. Defaults to `'inception'`. \
+                - `'inception'`: (x - 0.5) / 0.5. Scale [0, 1] to [-1, 1]. \
+                - `'imagenet'`: Normalize data using ImageNet mean std. \
+                - `'openai'`: Normalize data using mean std used to train CLIP models. \
+                - `'custom'`: Use custom mean std. \
+            - `batch_size`: Batch size. Defaults to `32`. \
+            - `mean`: Mean for custom normalize. Defaults to `None`. \
+            - `std`: Std for custom normalize. Defaults to `None`. \
+            - `interpolation`: Interpolation mode. Defaults to `'bicubic'`. \
+            - `num_workers`: Number of workers for DataLoader. Defaults to `8`. \
+            - `device`: Device to run feature extraction. Defaults to `'cuda'`. \
+            - `cache_features`: Cache real features to skip feature extraction on later calls. Useful when computing \
+                scores on different generated image sets. Defaults to `True`. \
+            - `dataset1_is_real`: Switch real dataset argument. Defaults to `True`. \
+            - `image_size`: Input size of feature extractor. Required when feature_extractor argument is a nn.Module. \
+                Ignored otherwise. Defaults to `None`.
+        result_file (str, optional): JSON file to save results. Defaults to `None`.
 
     Returns:
     -------
@@ -152,14 +130,19 @@ def calculate_metrics_from_folders(
     timer = Timer()
 
     real_dataset_dir, fake_dataset_dir = (
-        (dataset_dir1, dataset_dir2) if dataset1_is_real else (dataset_dir2, dataset_dir1)
+        (dataset_dir1, dataset_dir2) if feature_params.dataset1_is_real else (dataset_dir2, dataset_dir1)
     )
+
+    device = feature_params.device
+    feature_extractor = feature_params.feature_extractor
 
     # models supported by `ptfid`.
     if isinstance(feature_extractor, str):
         model, image_size = get_feature_extractor(feature_extractor, device=device)
     # nn.Module input as `feature_extraction` argument.
     elif isinstance(feature_extractor, nn.Module):
+        image_size = feature_params.image_size
+
         # `image_size` argument is required in this case.
         if image_size is None:
             raise Exception('If passing a nn.Module as `feature_extractor`, `image_size` must be given.')
@@ -185,7 +168,7 @@ def calculate_metrics_from_folders(
     real_features = None
     # load from cache.
     # We only cache real features.
-    if cache_features:
+    if feature_params.cache_features:
         logger.debug('  Looking for cached features for real dataset...')
 
         real_features = InMemoryFeatureCache.get(real_dataset_dir, feature_extractor)
@@ -201,20 +184,20 @@ def calculate_metrics_from_folders(
         # extract features from real dataset
         real_dataset = create_dataset(
             image_folder=real_dataset_dir,
-            batch_size=batch_size,
+            batch_size=feature_params.batch_size,
             image_size=image_size,
-            resize_name=resizer,
-            normalize_name=normalizer,
-            mean=mean,
-            std=std,
-            interpolation=interpolation,
-            num_workers=num_workers,
+            resize_name=feature_params.resizer,
+            normalize_name=feature_params.normalizer,
+            mean=feature_params.mean,
+            std=feature_params.std,
+            interpolation=feature_params.interpolation,
+            num_workers=feature_params.num_workers,
             pin_memory=device == 'cuda',
         )
 
         real_features = get_features(dataset=real_dataset, model=model, device=device)
 
-        if cache_features:
+        if feature_params.cache_features:
             logger.debug('  Caching real features.')
             InMemoryFeatureCache.set(real_dataset_dir, feature_extractor, real_features)
 
@@ -225,14 +208,14 @@ def calculate_metrics_from_folders(
 
     fake_dataset = create_dataset(
         image_folder=fake_dataset_dir,
-        batch_size=batch_size,
+        batch_size=feature_params.batch_size,
         image_size=image_size,
-        resize_name=resizer,
-        normalize_name=normalizer,
-        mean=mean,
-        std=std,
-        interpolation=interpolation,
-        num_workers=num_workers,
+        resize_name=feature_params.resizer,
+        normalize_name=feature_params.normalizer,
+        mean=feature_params.mean,
+        std=feature_params.std,
+        interpolation=feature_params.interpolation,
+        num_workers=feature_params.num_workers,
         pin_memory=device == 'cuda',
     )
 
@@ -243,31 +226,13 @@ def calculate_metrics_from_folders(
     logger.info('Compute metrics...')
     timer.start()
 
+    # We always know that feature1 is real due to feature_params.dataset1_is_real
+    metric_params.feat1_is_real = True
     results = calculate_metrics_from_features(
         features1=real_features,
         features2=fake_features,
-        fid=fid,
-        kid=kid,
-        pr=pr,
-        dc=dc,
-        pppr=pppr,
-        toppr=toppr,
-        eps=eps,
-        fid_compute_method=fid_compute_method,
-        kid_times=kid_times,
-        kid_subsets=kid_subsets,
-        kid_subset_size=kid_subset_size,
-        kid_degree=kid_degree,
-        kid_gamma=kid_gamma,
-        kid_coef0=kid_coef0,
-        pr_nearest_k=pr_nearest_k,
-        pppr_alpha=pppr_alpha,
-        toppr_alpha=toppr_alpha,
-        toppr_kernel=toppr_kernel,
-        toppr_randproj=toppr_randproj,
-        toppr_f1=toppr_f1,
-        feat1_is_real=True,
-        seed=seed,
+        metrics=metrics,
+        metric_params=metric_params,
     )
 
     duration = timer.done()

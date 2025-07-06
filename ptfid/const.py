@@ -5,6 +5,14 @@ from __future__ import annotations
 from PIL import Image
 from torchvision.transforms import InterpolationMode
 
+from ptfid.config import FeatureExtractionParameters, MetricFlags, MetricParameters
+
+# defaults
+METRIC_FLAGS_DEFAULT = MetricFlags()
+METRIC_PARAMS_DEFAULT = MetricParameters()
+FEATURE_PARAMS_DEFAULT = FeatureExtractionParameters()
+
+
 # arguments to reproduce other implementations
 FID_ARGUMENTS = dict(
     fid_compute_method='original',

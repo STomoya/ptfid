@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from ptfid.config import FIDComputeMethods
 from ptfid.core import efficient_fid, fid_gpu, original
 
 
@@ -26,7 +27,7 @@ def feature_statistics(features: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 
 def calculate_frechet_distance(
-    features1: np.ndarray, features2: np.ndarray, eps=1e-8, method: str = 'efficient'
+    features1: np.ndarray, features2: np.ndarray, eps=1e-8, method: FIDComputeMethods = FIDComputeMethods.efficient
 ) -> dict[str, float]:
     """Calc FID from given feature vectors.
 

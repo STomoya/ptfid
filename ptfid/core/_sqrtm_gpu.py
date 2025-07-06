@@ -53,9 +53,9 @@ def sqrtm(A, array_to_tensor, disp=True, blocksize=64):
             # complex byte size range: c8 ~ c32.
             # c32(complex256) might not be supported in some environments.
             if hasattr(np, 'complex256'):
-                X = X.astype(f'c{np.clip(byte_size*2, 8, 32)}', copy=False)
+                X = X.astype(f'c{np.clip(byte_size * 2, 8, 32)}', copy=False)
             else:
-                X = X.astype(f'c{np.clip(byte_size*2, 8, 16)}', copy=False)
+                X = X.astype(f'c{np.clip(byte_size * 2, 8, 16)}', copy=False)
     except SqrtmError:
         failflag = True
         X = np.empty_like(A)
@@ -92,7 +92,7 @@ def _sqrtm_triu(T, array_to_tensor, blocksize=64):
     R = np.diag(np.sqrt(T_diag))
 
     # Compute the number of blocks to use; use at least one block.
-    n, n = T.shape
+    n, _ = T.shape
     nblocks = max(n // blocksize, 1)
 
     # Compute the smaller of the two sizes of blocks that

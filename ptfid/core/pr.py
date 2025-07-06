@@ -11,7 +11,7 @@ from sklearn.metrics import pairwise_distances
 
 
 def compute_pairwise_distance(data_x: np.ndarray, data_y: np.ndarray = None) -> np.ndarray:
-    """pdist.
+    """Pdist.
 
     Args:
     ----

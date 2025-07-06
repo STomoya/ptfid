@@ -19,8 +19,6 @@ from ptfid.utils import local_seed
 #   Automatic Grid Search
 ###########################################
 def set_grid(data):  # noqa: D103
-    import numpy as np
-
     # find min max
     dim = len(data[0])
     mins = np.array([])
